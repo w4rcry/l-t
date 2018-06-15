@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<form name="f" method="post">
+<input type="text" name="num1" />
+<input type="text" name="num2" />
+<button type="button" onclick="loadDoc()">Request data</button>
+</form>
+
+
+<p id="demo"></p>
+
+<script>
+function loadDoc() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("demo").innerHTML = this.responseText;
+    }
+  };
+  
+  var n1 =f.num1.value;
+  var n2 = f.num2.value;
+  
+  xhttp.open("GET", "http://10.17.31.50:8001/WebService1/addTwo?a="+n1+"&b="+n2, true);
+  xhttp.send();
+}
+</script>
+
+</body>
+</html>
