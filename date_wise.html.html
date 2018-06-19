@@ -1,0 +1,302 @@
+<html> 
+	<head>
+	<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+	<script>
+	$(document).ready(function(){
+		$("button").click(function(){
+		//loop starts
+		var countries = "";
+		//alert("before loop");
+		for(var x=0;x<7;x++){
+
+			countries+=""+keys_date[x]+"=[";
+						
+			$.each($("#"+keys_date[x]+" option:selected"), function(){            
+			countries+='"'+$(this).text()+'",';
+			
+			
+			});
+			//alert("slicing" + countries.slice(0,-1));
+			countries=countries.slice(0,-1);
+			countries+="]&";
+
+		}
+				
+		//alert("Just countries "+countries.join(""));
+		
+		
+		// getting date-time inputs in 24 hr format : working fine
+		var input_from = document.getElementById("from_time").value;
+		var input_to = document.getElementById("to_time").value;
+		//alert(input);
+		var fields_from = input_from.split('T');
+		var fields_to = input_to.split('T');
+		var date_from = fields_from[0];
+		var time_from = fields_from[1];
+		var date_to = fields_to[0];
+		var time_to = fields_to[1];
+
+		//alert("Just countries "+countries.join(""));// doesnt work any lower than this
+		
+		/////////////////////
+		// getting input from checkbox
+		var sort_param = [];
+            $.each($("input[name='parameter']:checked"), function(){            
+                sort_param.push($(this).val());
+            });
+		//alert(sort_param.join(", "));
+		//alert(sort_param[0]);
+		/////////////////////
+		var final_str="http://192.168.1.5:8001/tbreport/datewisereport?";//this string will comtain the string to be passed on to the next web service
+		final_str+="&dtfrom="+date_from+"%20"+time_from+":00&dtto="+date_to+"%20"+time_to+":00&";
+		final_str+=countries;
+		final_str+="sortby="+'"'+sort_param[0]+'"';
+
+		alert(final_str);// this will be the FINAL STRING to be passed to the web service
+		console.log(final_str);
+		
+		////printing the output
+		var jsonObj_op;
+		<!-- var jsonObj_opp = { -->
+
+
+								<!-- "columns":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "ratings":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "rangecode":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "operator":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "testresult":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "testtype":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "breakertype":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								<!-- "columns1":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "ratings1":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "rangecode1":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "operator1":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "testresult1":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "testtype1":["ALL","16","20","25","32","40","50","63","80","100"], -->
+								
+								<!-- "breakertype1":["ALL","16","20","25","32","40","50","63","80","100"] -->
+								
+	<!-- } -->
+	//----
+	var xhttp = new XMLHttpRequest(); var x;
+	alert("1");
+  xhttp.onreadystatechange = function() {
+	alert("!");
+    if (this.readyState == 4 && this.status == 200) {
+      x=JSON.parse(this.responseText);  
+	alert(typeof(this.responseText));
+    }
+	
+  };
+  xhttp.open("GET", final_str, true);
+  xhttp.send();
+	//----
+	
+	  //jsonObj_op=jsonObj_opp;
+	  jsonObj_op = x;
+	  alert("stringify "+JSON.stringify(jsonObj_op));
+	var array3 = [];
+		var keys_op = [];
+		for(var k in jsonObj_op)
+			keys_op.push(k);
+		var num = Object.keys(jsonObj_op).length;	//cols
+		
+		var i,j;
+		for(i=0;i<num;i++){
+			array3[i]=[];
+			for(j=0;j<jsonObj_op[keys_op[i]].length;j++){
+				array3[i][j] = jsonObj_op[keys_op[i]][j]; 
+			}
+		}
+		//array assembled
+		
+		////
+		var ttable='<table border="1" cellpadding="3" style="display:block;">';
+		
+		for (var ii = 0; ii < array3[0].length; ii++){//rows
+		ttable += '<tr>';
+		for(var jj=0;jj<num;jj++){//columns
+			ttable+='<td>'+(ii==0?keys_op[jj]:array3[jj][ii])+'</td>';
+
+		}
+		ttable+='</tr>';
+		}
+		ttable+='</table>';
+		
+		document.getElementById("output_date").innerHTML=ttable;
+		////
+		
+		});
+		
+		$('.sort').on('change', function() {// single input selection on checkbox
+			$('.sort').not(this).prop('checked', false);  
+        });
+		
+		//alert("Just countries "+countries.join("")); doesnt work here
+	});	
+	//WORKING CODE:
+	//http://192.168.1.5:8001/tbreport/datewisereport?tbname=TBP355_TH&dtfrom=2018-01-02%2005:42:00&dtto=2018-01-03%2010:42:00&columns=[%22ALL%22]
+	//THE BIGGER ONE
+	//http://192.168.1.5:8001/tbreport/datewisereport?&dtfrom=2018-01-02%2005:42:00&dtto=2018-01-09%2010:42:00&columns=[%22SRNO%22]&ratings=[%22ALL%22]&rangecode=[%22ALL%22]&operator=[%22ALL%22]&testresult=[%22ALL%22]&testtype=[%22ALL%22]&breakertype=[%22ALL%22]&sortby=%22shift%22
+	</script>
+	 
+	  
+	</head>
+	<body>
+	<form name="f2">
+		<table border="2">
+		<tr>		  
+			<th color="lightgray"> SELECT DATE RANGE </th>
+			<th> RATING</th>
+			<th> RANGE CODE</th>
+			<th> OPERATOR</th>
+			<th> TEST RESULT </th>
+			<th> TEST TYPE </th>
+			<th>BREAKER TYPE </th>
+		</tr>
+		
+		<tr>  
+			<td>
+		   
+			 FROM:<br/><input type="datetime-local" id="from_time" value="2018-01-02T05:42"> <br> <br>
+
+		 
+			 TO:  <br/><input type="datetime-local" id="to_time" value="2018-01-09T10:42"> <br> <br>
+			</td>			
+			<td>
+				<select id="ratings" size="9" multiple style="width:100%">
+
+			   </select>
+			</td>			 
+			<td>
+				<select id="rangecode" size="9" multiple style="width:100%">
+			  </select>
+			</td>			 
+			<td>
+				<select id="operator" size="9" multiple style="width:100%">
+				</select>			
+			</td>			
+			<td>
+				<select id="testresult" size="9" multiple style="width:100%">
+				</select>	
+			</td>
+			<td>
+				<select id="testtype" size="9" multiple style="width:100%">
+				</select>
+			 </td>
+			   
+			<td >
+				<select id="breakertype" size="9" multiple style="width:100%"> 
+			  </select>
+			</td>  
+		</tr>
+
+		  <tr>
+			 <th> DATA COLUMN SELECTION</th>
+			  
+			 <td colspan="4"> 
+				<input type="checkbox" class ="sort" name="parameter" value="date"> DATE
+				<input type="checkbox" class ="sort" name="parameter"  value="serialnum">SERIAL NUM 
+				<input type="checkbox" class ="sort" name="parameter" value="user"> USER
+				<input type="checkbox" class ="sort" name="parameter"  value="shift"> SHIFT
+				<input type="checkbox" class ="sort" name="parameter"  value="user type">USER TYPE 
+					
+								
+			 </td>
+			 <td colspan="2">TOTAL RECORDS:<input type="text" style="text-align:right;" name="tot_rec"></td>
+			 
+			 
+		</tr>   
+		<tr>
+
+			<td >
+				<select id="columns" size="11" multiple style="width:100%"> 
+			  </select>
+			</td>   
+			<td colspan="6" >
+				<div id="output_date" size="11" multiple style="overflow:auto"> 
+					
+				</div>
+			</td>
+				
+		</tr>    
+	
+		</table>
+	</form>
+	
+	<button type="button">Print</button>
+
+	<script>
+		var jsonObj_date = {
+
+
+								"columns":["SRNO","TEST_NO","TB_INFO","TEST_DATE","TEST_USER","TEST_SHIFT","TEST_USER_TYPE","TEST_STATUS","UUT_INFO","STATION_NO","S1_I","S1_T","S1_RES","S2_I","S2_T","S2_RES","S3_I","S3_T","S3_RES","S4_I","S4_T","S4_RES","S5_I","S5_T",
+								"S5_RES","A1_I","A1_T","A1_RES","A2_I","A2_T","A2_RES","A3_I","A3_T","A3_RES","TEST_TIME"],
+								
+								"ratings":["ALL","16","20","25","32","40","50","63","80","100"],
+								
+								"rangecode":["ALL","20020AGXX","20025AGXX","20032AGXX","20040AGXX","20050AGXX","20080AGXX","20100AGXX","20125AGXX","30020AGXX","30020CGXX","30025AGXX","30025CGXX","30030CGAG","30032AGXX","30032CGXX","30040AGXX","30040CGAG","30040CGXX","30050AGAL","30050AGXX","30050CGXX","30063AGAL","30063AGXX","30063CGXX","30080AGAL","30080AGXX","30080CGXX","30100AGXX","30100CGAG","30100CGXX","30125AGXX","40020AGXX","40020CGXX","40025AGXX","40032AGXX","40032CGXX","40040AGXX","40040CGXX","40050AGXX","40050CGXX","40063AGXX","40063CGXX","40080AGXX","40080CGXX","40100AGXX","40100CGXX","40125AGXX"],
+								
+								"operator":["ALL","20061175","AC1","Admin","AKSHAY CHAUDHRAY","BB1","BHAVESH BHAVSAR","BHAVESH PARMAR","BP1","CAL","D N RATHVA","DK","DN0 TH 1","GAMESH","GR1","NIRANJAN MEWASI","NM1","PR1","PRAKASH","PRAKASH RATHVA","RAVINDRA VASAVA","RV1","SPM","STE","SUP","USER"],
+								
+								"testresult":["ALL","PASS","FAIL"],
+								
+								"testtype":["ALL","AUDIT","SHOP"],
+								
+								"breakertype":["ALL","TH-MAG","MTX","RC"]
+	}
+		var array2 = [];
+		var keys_date = [];
+		for(var k in jsonObj_date)
+			keys_date.push(k);
+		var num = Object.keys(jsonObj_date).length;
+		//alert(num);//7 keys to work with// works till here
+		
+		//alert("columns length"+jsonObj_date[keys_date[0]].length);
+		var i,j;
+		for(i=0;i<num;i++){
+			array2[i]=[];
+			for(j=0;j<jsonObj_date[keys_date[i]].length;j++){
+				array2[i][j] = jsonObj_date[keys_date[i]][j]; 
+			}
+		}
+		
+		//trying to print values in any one column
+		var k;
+		//alert(keys_date[0]);
+		for(k=0;k<=num;k++){
+		var mainColumn=keys_date[k];
+		//alert(mainColumn);//working 
+		
+		var indexer; var text='';
+		for(indexer=0;indexer<jsonObj_date[mainColumn].length;indexer++){
+			//alert(indexer);//its the correct attribute name
+			if(indexer==0)
+				text+='<option value="something'+i+'" selected="selected">'+array2[k][indexer]+'</option>';
+			else
+				text+='<option value="something'+i+'">'+array2[k][indexer]+'</option>';
+		}
+		document.getElementById(mainColumn).innerHTML=text;
+		//alert("old");
+		}
+		//keys_date is an array contains name of all columns. use this to get selection of all listboxes.	
+	
+
+	
+	
+	</script>
+	</body>
+
+
+</html>
